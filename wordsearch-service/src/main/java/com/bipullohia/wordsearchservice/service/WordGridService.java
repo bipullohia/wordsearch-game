@@ -1,4 +1,7 @@
-package com.bipullohia;
+package com.bipullohia.wordsearchservice.service;
+
+import com.bipullohia.wordsearchservice.model.Direction;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,22 +9,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Grid {
+@Service
+public class WordGridService {
 
-    private int gridSize;
-    char[][] gridContent;
-    List<String> ignoredWords = new ArrayList<>();
-    List<Coordinates> coordinates = new ArrayList<>();
-
-    private enum Direction {
-        HORIZONTAL,
-        VERTICAL,
-        DIAGONAL,
-        INVERSE_HORIZONTAL,
-        INVERSE_VERTICAL,
-        INVERSE_DIAGONAL
-    }
-
+    //making an inner class for convenience (this can as well be an outer class in the model pkg)
     private class Coordinates {
         int x;
         int y;
@@ -40,26 +31,24 @@ public class Grid {
         }
     }
 
-    public Grid (int gridSize){
-        this.gridSize = gridSize;
-        gridContent = new char[gridSize][gridSize];
-        //initializing the grid with '_'
+    public char[][] returnGridWithWords(int gridSize, List<String> words){
+        List<Coordinates> coordinates = new ArrayList<>();
+        //initialize the grid with underscores ('_')
+        char[][] gridContent = new char[gridSize][gridSize];
         for(int i=0; i < gridSize; i++) {
             for (int j = 0; j < gridSize; j++) {
                 gridContent[i][j] = '_';
                 coordinates.add(new Coordinates(i,j));
             }
         }
-    }
 
-    public void populateGridWithWords(List<String> words){
         for(String word: words){
             Collections.shuffle(coordinates); //shuffles the list to randomize the coordinates
             for(Coordinates coordinate: coordinates){
                 System.out.println("Word: " + word + "; coordinates: " + coordinate.toString());
                 int x = coordinate.x;
                 int y = coordinate.y;
-                Direction direction = getDirectionForWordFit(word, coordinate);
+                Direction direction = getDirectionForWordFit(gridContent, word, coordinate);
                 System.out.println("direction: " + direction);
                 if(direction != null){
                     switch(direction){
@@ -98,19 +87,21 @@ public class Grid {
                 }
             }
         }
-        fillGridWithRandomChars();
+        gridContent = fillGridWithRandomChars(gridContent);
+        return gridContent;
     }
 
-    private Direction getDirectionForWordFit(String word, Coordinates coordinate) {
+    private Direction getDirectionForWordFit(char[][] gridContent, String word, Coordinates coordinate) {
         List<Direction> directions = Arrays.asList(Direction.values());
         Collections.shuffle(directions);
         for(Direction direction: directions){
-            if(doesWordFit(word, coordinate, direction)) return direction;
+            if(doesWordFit(gridContent, word, coordinate, direction)) return direction;
         }
         return null;
     }
 
-    private boolean doesWordFit(String word, Coordinates coordinate, Direction direction){
+    private boolean doesWordFit(char[][] gridContent, String word, Coordinates coordinate, Direction direction){
+        int gridSize = gridContent[0].length;
         switch (direction){
             case HORIZONTAL:
                 if(word.length()+coordinate.y > gridSize) return false;
@@ -152,19 +143,8 @@ public class Grid {
         return true;
     }
 
-    public void printGridElements(){
-        for(int i=0; i<gridSize; i++){
-            for(int j=0; j<gridSize; j++){
-                System.out.print(gridContent[i][j] + " ");
-            }
-            System.out.println("");
-        }
-        if(ignoredWords.size()>0){
-            System.out.println("Ignored Words from Input: " + ignoredWords.toString());
-        }
-    }
-
-    private void fillGridWithRandomChars(){
+    private char[][] fillGridWithRandomChars(char[][] gridContent){
+        int gridSize = gridContent[0].length;
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         int randomIndex;
         for(int i=0; i<gridSize; i++){
@@ -175,7 +155,19 @@ public class Grid {
                 }
             }
         }
+        return gridContent;
     }
 
+    public String printGridElements(char[][] gridContent){
+        int gridSize = gridContent[0].length;
+        StringBuilder gridResultString = new StringBuilder();
+        for(int i=0; i<gridSize; i++){
+            for(int j=0; j<gridSize; j++){
+                gridResultString.append(gridContent[i][j]).append(" ");
+            }
+            gridResultString.append("\r\n");
+        }
+        return gridResultString.toString();
+    }
 
 }
