@@ -87,7 +87,7 @@ public class WordGridService {
                 }
             }
         }
-        gridContent = fillGridWithRandomChars(gridContent);
+        fillGridWithRandomChars(gridContent);
         return gridContent;
     }
 
@@ -106,44 +106,50 @@ public class WordGridService {
             case HORIZONTAL:
                 if(word.length()+coordinate.y > gridSize) return false;
                 for(int i=0; i<word.length(); i++){
-                    if(gridContent[coordinate.x][coordinate.y+i] != '_') return false;
+                    char letter = gridContent[coordinate.x][coordinate.y+i];
+                    if(letter != '_' && letter != word.charAt(i)) return false;
                 }
                 break;
             case VERTICAL:
                 if(word.length()+coordinate.x > gridSize) return false;
                 for(int i=0; i<word.length(); i++){
-                    if(gridContent[coordinate.x+i][coordinate.y] != '_') return false;
+                    char letter = gridContent[coordinate.x+i][coordinate.y];
+                    if(letter != '_' && letter != word.charAt(i)) return false;
                 }
                 break;
             case DIAGONAL:
                 if(word.length()+coordinate.x > gridSize || word.length()+coordinate.y > gridSize) return false;
                 for(int i=0; i<word.length(); i++){
-                    if(gridContent[coordinate.x+i][coordinate.y+i] != '_') return false;
+                    char letter = gridContent[coordinate.x+i][coordinate.y+i];
+                    if(letter != '_' && letter != word.charAt(i)) return false;
                 }
                 break;
             case INVERSE_HORIZONTAL:
                 if(coordinate.y-word.length() < 0) return false;
                 for(int i=0; i<word.length(); i++){
-                    if(gridContent[coordinate.x][coordinate.y-i] != '_') return false;
+                    char letter = gridContent[coordinate.x][coordinate.y-i];
+                    if(letter != '_' && letter != word.charAt(i)) return false;
                 }
                 break;
             case INVERSE_VERTICAL:
                 if(coordinate.x-word.length() < 0) return false;
                 for(int i=0; i<word.length(); i++){
-                    if(gridContent[coordinate.x-i][coordinate.y] != '_') return false;
+                    char letter = gridContent[coordinate.x-i][coordinate.y];
+                    if(letter != '_' && letter != word.charAt(i)) return false;
                 }
                 break;
             case INVERSE_DIAGONAL:
                 if(coordinate.x-word.length() < 0 || coordinate.y-word.length() < 0) return false;
                 for(int i=0; i<word.length(); i++){
-                    if(gridContent[coordinate.x-i][coordinate.y-i] != '_') return false;
+                    char letter = gridContent[coordinate.x-i][coordinate.y-i];
+                    if(letter != '_' && letter != word.charAt(i)) return false;
                 }
                 break;
         }
         return true;
     }
 
-    private char[][] fillGridWithRandomChars(char[][] gridContent){
+    private void fillGridWithRandomChars(char[][] gridContent){
         int gridSize = gridContent[0].length;
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         int randomIndex;
@@ -155,17 +161,16 @@ public class WordGridService {
                 }
             }
         }
-        return gridContent;
     }
 
-    public String printGridElements(char[][] gridContent){
+    public String getGridContentString(char[][] gridContent){
         int gridSize = gridContent[0].length;
         StringBuilder gridResultString = new StringBuilder();
         for(int i=0; i<gridSize; i++){
             for(int j=0; j<gridSize; j++){
                 gridResultString.append(gridContent[i][j]).append(" ");
             }
-            gridResultString.append("\r\n");
+            //gridResultString.append("\r\n");
         }
         return gridResultString.toString();
     }

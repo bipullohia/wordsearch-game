@@ -2,3 +2,8 @@
 /out
 *.iml
 .DS_Store
+.vscode
+/wordsearch-ui/node_modules
+/wordsearch-ui/.parcel-cache
+/wordsearch-ui/dist
+/wordsearch-ui/package-lock.json
