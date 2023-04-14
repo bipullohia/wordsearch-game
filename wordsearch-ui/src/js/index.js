@@ -14,7 +14,8 @@ async function fetchWordGridFromService(){
     const gridSizeByUser = document.getElementById("grid-size").value;
     
     grid.words = wordListByUser.split(",");
-    const host = 'http://localhost:8090/wordgrid';
+    // const host = 'http://localhost:8090/wordgrid';
+    const host = './wordgrid'; //this is relative host address - used when we bundle the static files with the springboot service
     const uri = `${host}?gridSize=${gridSizeByUser}&wordList=${wordListByUser}`;
     
     let response = await fetch(uri);

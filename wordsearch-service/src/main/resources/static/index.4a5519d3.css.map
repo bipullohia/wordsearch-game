@@ -1,0 +1,1 @@
+{"mappings":"AAAA;;;;AAIA","sources":["src/app.css"],"sourcesContent":["* {\n    font-family: sans-serif;\n}\n\n.grid-section {\n    margin-top: 30px;\n}"],"names":[],"version":3,"file":"index.4a5519d3.css.map","sourceRoot":"/__parcel_source_root/"}
