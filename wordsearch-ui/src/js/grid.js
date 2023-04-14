@@ -3,15 +3,45 @@ export class Grid {
     constructor() {
         this.wordSelectedMode = false;
         this.selectedItems = [];
+        this.firstSelectedItem;
+        this.gridSection;
+        this.words = [];
+        this.foundWords = [];
+    }
+
+    getCellsInRange(firstLetter, currentLetter) {
+        let cellsInRange = [];
+        //swapping the letters if it is inverse horizontal/vertical/diagonal
+        if(firstLetter.x > currentLetter.x || firstLetter.y > currentLetter.y) {
+            [firstLetter, currentLetter] = [currentLetter, firstLetter];
+        }
+
+        //horizontal selection
+        if(firstLetter.x === currentLetter.x) {
+            for(let i = firstLetter.y; i <= currentLetter.y; i++){
+                cellsInRange.push(this.gridSection.querySelector(`td[data-x="${currentLetter.x}"][data-y="${i}"]`));
+            }
+        } else if(firstLetter.y === currentLetter.y) { //vertical selection
+            for(let i = firstLetter.x; i <= currentLetter.x; i++){
+                cellsInRange.push(this.gridSection.querySelector(`td[data-x="${i}"][data-y="${currentLetter.y}"]`));
+            }
+        } else if(firstLetter.y - currentLetter.y === firstLetter.x - currentLetter.x) { //diagonal selection
+            let diff = currentLetter.y - firstLetter.y;
+            for(let i = 0; i <= diff; i++){
+                cellsInRange.push(this.gridSection.querySelector(`td[data-x="${firstLetter.x + i}"][data-y="${firstLetter.y + i}"]`));
+            }
+        }
+
+        return cellsInRange;
     }
 
     renderGrid(gridSize, gridContent) {
         var gridSection = document.getElementsByClassName("grid-section")[0];
+        //to remove the old table grid when before we generate a new table for word grid
         if(gridSection.lastChild){
             gridSection.removeChild(gridSection.lastChild);
         }
-
-
+        this.gridSection = gridSection;
         const tbl = document.createElement("table");
         const tblBody = document.createElement("tbody");
         let index = 0;
@@ -36,36 +66,41 @@ export class Grid {
 
 
         //event handlers for mouseup/mousedown/mousemove
-        gridSection.addEventListener("mousedown", (e) => {
+        tbl.addEventListener("mousedown", (e) => {
             this.wordSelectedMode = true;
+            let cell = e.target;
+            let x = +cell.getAttribute('data-x');
+            let y = +cell.getAttribute('data-y');
+            this.firstSelectedItem = ({
+                x, y
+            });  
         });
 
-        gridSection.addEventListener("mousemove", (e) => {
+        tbl.addEventListener("mousemove", (e) => {
             if(this.wordSelectedMode){
                 let cell = e.target;
-                cell.classList.add("selected");
-                let x = cell.getAttribute('data-x');
-                let y = cell.getAttribute('data-y');
-                let letter = cell.getAttribute('data-letter');
-
-                if(this.selectedItems.length>1){
-                    const lastItem = this.selectedItems[this.selectedItems.length-1];
-                    if(lastItem.x === x && lastItem.y === y) return; // to check if the mouse hasn't moved (i.e., the new item is same as last item, don't push the item)
-                }
-
-                //pushing the object with all the data in the array
-                this.selectedItems.push({
-                    x, y, letter, cell
-                });
-                console.log(this.selectedItems);
+                let x = +cell.getAttribute('data-x');
+                let y = +cell.getAttribute('data-y');
+                this.selectedItems.forEach(cell => cell.classList.remove("selected"));
+                this.selectedItems = this.getCellsInRange(this.firstSelectedItem, {x,y});
+                this.selectedItems.forEach(cell => cell.classList.add("selected"));
             }
         });
 
-        gridSection.addEventListener("mouseup", () => {
+        tbl.addEventListener("mouseup", () => {
             this.wordSelectedMode = false;
-            this.selectedItems.forEach(item => {
-                item.cell.classList.remove("selected"); //the e will contain the entire object with x, y, letter and cell
-            });
+            const selectedWord = this.selectedItems.reduce((word, cell) => word += cell.getAttribute("data-letter"), '');
+            const inverseSelectedWord = selectedWord.split("").reverse().join("");
+            if(this.words.indexOf(selectedWord) !== -1){
+                this.foundWords.push(selectedWord);
+            }else if(this.words.indexOf(inverseSelectedWord) !== -1){
+                this.foundWords.push(inverseSelectedWord);
+            }else {
+                this.selectedItems.forEach(cell => {
+                    cell.classList.remove("selected"); //the e will contain the entire object with x, y, letter and cell
+                });
+            }
+            this.selectedItems = [];
         });
     }
 
